@@ -1,5 +1,5 @@
 ---
-name: hfe-esg-report-analysis
+name: HF/E-ESG-report-analysis
 description: 用於分析企業永續報告書中人因工程相關揭露內容，並對應 ESG 構面與揭露深度評分。
 ---
 
