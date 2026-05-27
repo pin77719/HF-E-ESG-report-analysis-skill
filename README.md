@@ -57,3 +57,9 @@
 - 揭露深度分數
 - 判斷理由
 - 改善建議
+
+## 作品展示連結
+
+本專案作品可透過 GitHub Pages 開啟：
+
+https://pin77719.github.io/HF-E-ESG-report-analysis-skill/
