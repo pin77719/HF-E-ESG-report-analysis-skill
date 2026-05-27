@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>HF/E ESG Report Analysis Tool</title>
+  <style>
+    body {
+      font-family: Arial, "Microsoft JhengHei", sans-serif;
+      margin: 40px;
+      background-color: #f7f7f7;
+      color: #222;
+    }
+
+    h1 {
+      color: #1f3c88;
+    }
+
+    textarea {
+      width: 100%;
+      height: 180px;
+      padding: 12px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 16px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #1f3c88;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #14285c;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 24px;
+      border-collapse: collapse;
+      background-color: white;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background-color: #e8eefc;
+      width: 25%;
+    }
+
+    .note {
+      margin-top: 20px;
+      padding: 12px;
+      background-color: #fff7d6;
+      border-left: 5px solid #f0c000;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>HF/E ESG Report Analysis Tool</h1>
+
+  <p>
+    本工具用於協助初步分析企業永續報告書段落中，是否涉及人因工程（HF/E）相關揭露內容，
+    並判斷其人因工程分類、ESG 對應構面與揭露深度分數。
+  </p>
+
+  <h2>請輸入永續報告書段落</h2>
+
+  <textarea id="inputText" placeholder="請貼上永續報告書中的一段文字，例如：公司透過改善生產線作業流程與教育訓練，降低員工操作錯誤率，並減少因重工造成的原物料浪費。2024 年整體重工率較前一年下降 12%。"></textarea>
+
+  <br>
+
+  <button onclick="analyzeText()">開始分析</button>
+
+  <table>
+    <tr>
+      <th>分析項目</th>
+      <th>分析結果</th>
+    </tr>
+    <tr>
+      <td>是否涉及人因工程</td>
+      <td id="hfeResult">尚未分析</td>
+    </tr>
+    <tr>
+      <td>人因工程分類</td>
+      <td id="domainResult">尚未分析</td>
+    </tr>
+    <tr>
+      <td>ESG 對應構面</td>
+      <td id="esgResult">尚未分析</td>
+    </tr>
+    <tr>
+      <td>揭露深度分數</td>
+      <td id="scoreResult">尚未分析</td>
+    </tr>
+    <tr>
+      <td>判斷理由</td>
+      <td id="reasonResult">尚未分析</td>
+    </tr>
+    <tr>
+      <td>改善建議</td>
+      <td id="suggestionResult">尚未分析</td>
+    </tr>
+  </table>
+
+  <div class="note">
+    注意：本工具為期末作品展示用之初步分析工具，分析結果仍需搭配人工判讀與研究者編碼規則進行確認。
+  </div>
+
+  <script>
+    function analyzeText() {
+      const text = document.getElementById("inputText").value;
+
+      if (text.trim() === "") {
+        alert("請先輸入一段永續報告書文字。");
+        return;
+      }
+
+      const physicalKeywords = ["姿勢", "搬運", "肌肉骨骼", "工作站", "人機", "設備", "職業傷害", "作業負荷", "安全防護"];
+      const cognitiveKeywords = ["人為錯誤", "操作錯誤", "注意力", "決策", "介面", "警示", "風險辨識", "教育訓練", "安全意識"];
+      const organizationalKeywords = ["工作制度", "輪班", "工時", "安全文化", "員工參與", "跨部門", "流程改善", "人員配置", "管理制度"];
+
+      const socialKeywords = ["員工", "安全", "健康", "訓練", "職業安全", "福祉", "工作環境", "勞動"];
+      const environmentalKeywords = ["能源", "資源", "廢棄物", "減碳", "碳排放", "污染", "原物料", "浪費", "環境績效"];
+
+      const measureKeywords = ["改善", "建立", "推動", "導入", "執行", "降低", "提升", "減少", "管理"];
+      const quantitativeKeywords = ["%", "％", "下降", "提升", "減少", "增加", "年", "績效", "指標", "追蹤"];
+
+      let domains = [];
+
+      if (physicalKeywords.some(word => text.includes(word))) {
+        domains.push("物理人因");
+      }
+
+      if (cognitiveKeywords.some(word => text.includes(word))) {
+        domains.push("認知人因");
+      }
+
+      if (organizationalKeywords.some(word => text.includes(word))) {
+        domains.push("組織人因");
+      }
+
+      let hfeResult = domains.length > 0 ? "是" : "否";
+      let domainResult = domains.length > 0 ? domains.join("、") : "不適用";
+
+      const hasSocial = socialKeywords.some(word => text.includes(word));
+      const hasEnvironmental = environmentalKeywords.some(word => text.includes(word));
+
+      let esgResult = "不適用";
+      if (hasSocial && hasEnvironmental) {
+        esgResult = "社會－環境連結";
+      } else if (hasSocial) {
+        esgResult = "社會構面";
+      } else if (hasEnvironmental) {
+        esgResult = "環境構面";
+      }
+
+      let score = 0;
+      if (hfeResult === "否") {
+        score = 0;
+      } else if (quantitativeKeywords.some(word => text.includes(word))) {
+        score = 3;
+      } else if (measureKeywords.some(word => text.includes(word))) {
+        score = 2;
+      } else {
+        score = 1;
+      }
+
+      let reason = "";
+      if (score === 0) {
+        reason = "此段落未明顯出現與人因工程相關的工作設計、安全、訓練、流程改善或員工相關內容。";
+      } else if (score === 1) {
+        reason = "此段落有提及人因工程相關概念，但內容較偏原則性或概念性描述。";
+      } else if (score === 2) {
+        reason = "此段落有說明具體措施、制度、作法或改善活動，因此評為 2 分。";
+      } else if (score === 3) {
+        reason = "此段落除了描述具體措施外，也出現量化成果、績效指標或改善成效，因此評為 3 分。";
+      }
+
+      let suggestion = "";
+      if (score === 0) {
+        suggestion = "可補充與員工安全、作業流程、教育訓練或工作環境改善相關的具體內容。";
+      } else if (score === 1) {
+        suggestion = "建議補充具體執行措施、管理制度或實際改善案例。";
+      } else if (score === 2) {
+        suggestion = "建議進一步加入量化成果、追蹤指標或改善前後比較資料。";
+      } else {
+        suggestion = "此段落揭露相對完整，後續可補充計算方式、執行範圍或長期追蹤機制。";
+      }
+
+      document.getElementById("hfeResult").innerText = hfeResult;
+      document.getElementById("domainResult").innerText = domainResult;
+      document.getElementById("esgResult").innerText = esgResult;
+      document.getElementById("scoreResult").innerText = score + " 分";
+      document.getElementById("reasonResult").innerText = reason;
+      document.getElementById("suggestionResult").innerText = suggestion;
+    }
+  </script>
+</body>
+</html>
