@@ -1,22 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HF/E ESG Report Analysis Tool</title>
+  <style>
+    :root {
+      --ink: #1f2933;
+      --muted: #5f6f7f;
+      --line: #d9e2ec;
+      --surface: #ffffff;
+      --page: #f5f7fa;
+      --blue: #2563a8;
+      --blue-dark: #174a7c;
+      --green: #2f7d5c;
+      --amber: #b7791f;
+      --red: #b42318;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+      color: var(--ink);
+      background: var(--page);
+      line-height: 1.6;
+    }
+
+    header {
+      background: #102a43;
+      color: #fff;
+      padding: 40px 20px 28px;
+      border-bottom: 6px solid var(--green);
+    }
+
+    .wrap {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 22px;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    .lead {
+      max-width: 820px;
+      color: #dbeafe;
+      font-size: 17px;
+    }
+
+    main {
+      padding: 28px 0 44px;
+    }
+
+    .tool-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: 0 8px 22px rgba(16, 42, 67, 0.06);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 220px;
+      resize: vertical;
+      padding: 14px;
+      border: 1px solid #bcccdc;
+      border-radius: 6px;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    textarea:focus {
+      outline: 3px solid rgba(37, 99, 168, 0.18);
+      border-color: var(--blue);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    button {
+      min-height: 42px;
+      padding: 0 16px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .primary {
+      color: #fff;
+      background: var(--blue);
+    }
+
+    .primary:hover {
+      background: var(--blue-dark);
+    }
+
+    .secondary {
+      color: var(--blue-dark);
+      background: #fff;
+      border-color: #9fb3c8;
+    }
+
+    .secondary:hover {
+      background: #edf4fb;
+    }
+
+    .summary {
+      display: grid;
+      gap: 10px;
+    }
+
+    .metric {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fbfdff;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 3px;
+      font-size: 18px;
+    }
+
+    .score-0 strong,
+    .confidence-low strong {
+      color: var(--red);
+    }
+
+    .score-1 strong,
+    .confidence-mid strong {
+      color: var(--amber);
+    }
+
+    .score-2 strong,
+    .score-3 strong,
+    .confidence-high strong {
+      color: var(--green);
+    }
+
+    .results {
+      margin-top: 18px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+    }
+
+    th,
+    td {
+      padding: 12px;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      width: 220px;
+      background: #eef5fb;
+      color: #243b53;
+    }
+
+    .rules {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .rule-list {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .rule-list li {
+      margin-bottom: 8px;
+    }
+
+    .note {
+      margin-top: 18px;
+      padding: 14px;
+      border-left: 5px solid var(--amber);
+      background: #fff8e6;
+      color: #533f03;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 860px) {
+      .tool-grid,
+      .rules {
         grid-template-columns: 1fr;
       }
+
       th {
         width: 160px;
       }
     }
+
     @media (max-width: 560px) {
       .wrap {
         width: min(100% - 22px, 1120px);
       }
+
       header {
         padding: 28px 0 22px;
       }
+
       main {
         padding-top: 18px;
       }
+
       .panel {
         padding: 14px;
       }
+
       table,
       tbody,
       tr,
@@ -25,6 +281,7 @@
         display: block;
         width: 100%;
       }
+
       th {
         border-bottom: 0;
       }
@@ -38,6 +295,7 @@
       <p class="lead">分析企業永續報告書段落是否涉及人因工程，並輸出 HF/E 分類、ESG 構面、揭露深度、證據摘錄、信心程度與改善建議。</p>
     </div>
   </header>
+
   <main>
     <div class="wrap">
       <section class="tool-grid" aria-label="HF/E ESG 分析工具">
@@ -51,6 +309,7 @@
           </div>
           <p class="small">此頁為規則式初步分析工具，適合展示、教學與前期篩選；正式研究仍建議搭配人工編碼確認。</p>
         </div>
+
         <aside class="panel">
           <h2>快速摘要</h2>
           <div class="summary">
@@ -77,6 +336,7 @@
           </div>
         </aside>
       </section>
+
       <section class="panel results" aria-label="分析結果">
         <h2>分析結果</h2>
         <table>
@@ -124,6 +384,7 @@
           </tbody>
         </table>
       </section>
+
       <section class="rules" aria-label="分析規則">
         <article class="panel">
           <h3>HF/E 分類</h3>
@@ -133,6 +394,7 @@
             <li>組織人因：工時、輪班、安全文化、員工參與、流程改善、管理制度。</li>
           </ul>
         </article>
+
         <article class="panel">
           <h3>ESG 構面</h3>
           <ul class="rule-list">
@@ -141,6 +403,7 @@
             <li>社會－環境連結：HF/E 措施同時連結環境成果。</li>
           </ul>
         </article>
+
         <article class="panel">
           <h3>揭露深度</h3>
           <ul class="rule-list">
@@ -151,13 +414,16 @@
           </ul>
         </article>
       </section>
+
       <div class="note">
         本工具採用關鍵詞與簡化規則進行初步判斷。若段落語意模糊，請以 `SKILL.md` 的完整分析流程與人工判讀為準。
       </div>
     </div>
   </main>
+
   <script>
     const exampleText = "公司透過改善生產線作業流程與教育訓練，降低員工操作錯誤率，並減少因重工造成的原物料浪費。2024 年整體重工率較前一年下降 12%。";
+
     const keywordGroups = {
       physical: ["姿勢", "搬運", "抬舉", "重複性動作", "肌肉骨骼", "工作站", "人機", "設備", "職業傷害", "作業負荷", "安全防護", "工位"],
       cognitive: ["人為錯誤", "操作錯誤", "錯誤率", "注意力", "決策", "介面", "警示", "風險辨識", "教育訓練", "安全意識", "訓練"],
@@ -167,12 +433,15 @@
       action: ["改善", "建立", "推動", "導入", "執行", "降低", "提升", "減少", "管理", "優化", "追蹤"],
       quantitative: ["%", "％", "下降", "提升", "減少", "增加", "KPI", "指標", "績效", "追蹤", "較前一年", "年", "件", "人次"]
     };
+
     function analyzeText() {
       const text = document.getElementById("inputText").value.trim();
+
       if (!text) {
         window.alert("請先輸入一段永續報告書文字。");
         return;
       }
+
       const matched = {
         physical: findMatches(text, keywordGroups.physical),
         cognitive: findMatches(text, keywordGroups.cognitive),
@@ -182,10 +451,12 @@
         action: findMatches(text, keywordGroups.action),
         quantitative: findMatches(text, keywordGroups.quantitative)
       };
+
       const domains = [];
       if (matched.physical.length) domains.push("物理人因");
       if (matched.cognitive.length) domains.push("認知人因");
       if (matched.organizational.length) domains.push("組織人因");
+
       const hasHfe = domains.length > 0;
       const primaryDomain = getPrimaryDomain(matched);
       const hasSocial = matched.social.length > 0;
@@ -198,6 +469,7 @@
       const evidence = buildEvidence(matched);
       const reason = buildReason(hasHfe, domains, esg, score, evidence);
       const suggestion = buildSuggestion(score, esg);
+
       setText("originalResult", text);
       setText("hfeResult", hasHfe ? "是" : "否");
       setText("evidenceResult", evidence || "未找到明確 HF/E 證據");
@@ -208,18 +480,119 @@
       setText("confidenceResult", confidence);
       setText("reasonResult", reason);
       setText("suggestionResult", suggestion);
+
       updateMetric("metricHfe", hasHfe ? "是" : "否", hasHfe ? "" : "score-0");
       updateMetric("metricType", primaryDomain, "");
       updateMetric("metricEsg", esg, "");
       updateMetric("metricScore", score + " 分", "score-" + score);
       updateMetric("metricConfidence", confidence, confidenceClass(confidence));
     }
+
     function findMatches(text, words) {
       return words.filter((word) => text.includes(word));
     }
+
     function getPrimaryDomain(matched) {
       const counts = [
         ["物理人因", matched.physical.length],
         ["認知人因", matched.cognitive.length],
         ["組織人因", matched.organizational.length]
       ].sort((a, b) => b[1] - a[1]);
+
+      return counts[0][1] > 0 ? counts[0][0] : "不適用";
+    }
+
+    function getEsgDimension(hasHfe, hasSocial, hasEnvironmental) {
+      if (hasHfe && hasSocial && hasEnvironmental) return "社會－環境連結";
+      if (hasSocial) return "社會構面";
+      if (hasEnvironmental) return "環境構面";
+      return "不適用";
+    }
+
+    function getScore(hasHfe, hasAction, hasQuantitative) {
+      if (!hasHfe) return 0;
+      if (hasAction && hasQuantitative) return 3;
+      if (hasAction) return 2;
+      return 1;
+    }
+
+    function getConfidence(hasHfe, hasAction, hasQuantitative, domainCount) {
+      if (!hasHfe) return "低";
+      if (hasAction && hasQuantitative && domainCount > 0) return "高";
+      if (hasAction || domainCount > 1) return "中";
+      return "低";
+    }
+
+    function buildEvidence(matched) {
+      const combined = [
+        ...matched.physical,
+        ...matched.cognitive,
+        ...matched.organizational,
+        ...matched.social,
+        ...matched.environmental,
+        ...matched.action,
+        ...matched.quantitative
+      ];
+      return [...new Set(combined)].slice(0, 10).join("、");
+    }
+
+    function buildReason(hasHfe, domains, esg, score, evidence) {
+      if (!hasHfe) {
+        return "此段落未出現足以支持 HF/E 判斷的工作設計、操作行為、訓練、流程改善或組織管理線索，因此評為 0 分。";
+      }
+
+      const domainText = domains.join("、");
+      const scoreText = {
+        1: "內容具有 HF/E 相關線索，但較偏概念性描述，缺乏具體公司作法。",
+        2: "內容包含具體措施、制度、訓練或流程改善，但未提供明確量化成果。",
+        3: "內容同時包含具體措施與量化成果、績效或改善成效。"
+      }[score];
+
+      return "段落出現「" + evidence + "」等線索，判定涉及 " + domainText + "，ESG 構面為 " + esg + "。" + scoreText;
+    }
+
+    function buildSuggestion(score, esg) {
+      if (score === 0) {
+        return "可補充與員工操作、工作環境、教育訓練、流程改善或安全管理相關的公司特定作法。";
+      }
+      if (score === 1) {
+        return "建議補充具體執行措施、負責單位、涵蓋對象、執行頻率或實際改善案例。";
+      }
+      if (score === 2) {
+        return "建議加入量化成果、改善前後比較、KPI、追蹤機制或稽核結果。";
+      }
+      if (esg === "社會－環境連結") {
+        return "可進一步說明 HF/E 措施如何換算為節能、減廢、減少重工或降低原物料損耗。";
+      }
+      return "可補充計算方式、執行範圍與長期追蹤機制，使揭露更完整。";
+    }
+
+    function confidenceClass(confidence) {
+      if (confidence === "高") return "confidence-high";
+      if (confidence === "中") return "confidence-mid";
+      return "confidence-low";
+    }
+
+    function updateMetric(id, value, className) {
+      const metric = document.getElementById(id);
+      metric.className = "metric" + (className ? " " + className : "");
+      metric.querySelector("strong").innerText = value;
+    }
+
+    function setText(id, value) {
+      document.getElementById(id).innerText = value;
+    }
+
+    function loadExample() {
+      document.getElementById("inputText").value = exampleText;
+      analyzeText();
+    }
+
+    function clearText() {
+      document.getElementById("inputText").value = "";
+    }
+
+    analyzeText();
+  </script>
+</body>
+</html>
